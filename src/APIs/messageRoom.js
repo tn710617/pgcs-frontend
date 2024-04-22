@@ -6,10 +6,25 @@ export function useEnterRoom(options = {}) {
     const axios = useAxios()
     return useMutation({
         mutationFn: async (data = {}) => {
-            data.user_id = getUserFromLocalStorage()
+            const userId = getUserFromLocalStorage()
             const res = await axios.post(`message-rooms/create-or-enter`, data, {
                 headers: {
-                    Authorization: `Bearer ${data.user_id}`
+                    Authorization: `Bearer ${userId}`
+                }
+            })
+            return res.data.data
+        }, ...options
+    })
+}
+
+export function useLeaveRoom(options = {}) {
+    const axios = useAxios()
+    return useMutation({
+        mutationFn: async () => {
+            const userId = getUserFromLocalStorage()
+            const res = await axios.post(`message-rooms/leave`, {}, {
+                headers: {
+                    Authorization: `Bearer ${userId}`
                 }
             })
             return res.data.data

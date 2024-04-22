@@ -1,7 +1,7 @@
 import './App.css';
 import {useEffect, useState} from "react";
 import {
-    appendCoordinateToCopiedCoordinates,
+    appendCoordinateToCopiedCoordinates, getUserHashId,
     isCoordinateCopied,
 } from "./Messages/handlers";
 import SecretModal from "./Messages/EnterSecretModal";
@@ -13,20 +13,29 @@ import enterSecretModalAtom from "./States/EnterSecretModalAtom";
 import enterMessageRoomModalAtom from "./States/EnterMessageRoomModalAtom";
 import {useCreateMessage, useIndexMessage} from "./APIs/message";
 import {useQueryClient} from "@tanstack/react-query";
+import {useLeaveRoom} from "./APIs/messageRoom";
 
 function App() {
     const [inputValue, setInputValue] = useState('');
     const [, setCoordinatesCopiedCount] = useState(0);
     const [currentRoomId, setCurrentRoomId] = useState(null);
+    const [userId, setUserId] = useState(getUserHashId());
 
     const [isSecretModalOpen, setIsSecretModalOpen] = useRecoilState(enterSecretModalAtom);
     const [isEnterRoomModalOpen, setIsEnterRoomModalOpen] = useRecoilState(enterMessageRoomModalAtom);
 
     const userSelf = useGetUserSelf({enabled: isUserSet()})
     const createMessage = useCreateMessage();
-    const indexMessage = useIndexMessage();
+    const indexMessage = useIndexMessage({enabled: (currentRoomId !== null) && (currentRoomId !== undefined)});
+    const leaveRoom = useLeaveRoom()
 
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (userSelf.isSuccess && userSelf.data) {
+            setUserId(userSelf.data.id)
+        }
+    }, [userSelf]);
 
     useEffect(() => {
         const maintainCurrentRoomId = async () => {
@@ -35,8 +44,8 @@ function App() {
                 if (currentRoomId !== null) {
                     setCurrentRoomId(currentRoomId)
                 }
-                if (currentRoomId === null) {
-                    setCurrentRoomId(null)
+                if (currentRoomId === null || currentRoomId === undefined) {
+                    setCurrentRoomId(() => null)
                 }
             }
         }
@@ -46,12 +55,10 @@ function App() {
 
     useEffect(() => {
         const listenToChannel = async () => {
-            if (currentRoomId !== null) {
-                console.log('joining channel')
+            if (currentRoomId !== null && currentRoomId !== undefined) {
                 window.Echo.private(`messageRooms.${currentRoomId}`)
                     .listen('MessageCreated', (e) => {
                         queryClient.invalidateQueries(indexMessage.queryKey);
-                        console.log('event received')
                     });
             }
         }
@@ -61,14 +68,13 @@ function App() {
         return () => {
             if (currentRoomId !== null) {
                 window.Echo.leave(`messageRooms.${currentRoomId}`)
-                console.log('leaving channel')
             }
         }
     }, [currentRoomId, indexMessage.queryKey, queryClient]);
 
     useEffect(() => {
         const maintainEnterRoomModal = () => {
-            if (currentRoomId === null) {
+            if (currentRoomId === null && userId !== null) {
                 setIsEnterRoomModalOpen(true)
             }
             if (currentRoomId !== null) {
@@ -77,7 +83,7 @@ function App() {
         }
 
         maintainEnterRoomModal()
-    }, [currentRoomId, setIsEnterRoomModalOpen]);
+    }, [currentRoomId, setIsEnterRoomModalOpen, userId]);
 
     const handlePaste = async (event) => {
         event.preventDefault();
@@ -104,14 +110,25 @@ function App() {
         });
     }
 
+    const handleLeave = () => {
+        leaveRoom.mutate({}, {
+            onSuccess: () => {
+                window.location.reload()
+            },
+            onError: (error) => {
+                console.error(error)
+            }
+        });
+    }
+
 
     return (
         <>
             <SecretModal isOpen={isSecretModalOpen} setIsOpen={(isOpen) => setIsSecretModalOpen(isOpen)}/>
             <EnterRoomModal isOpen={isEnterRoomModalOpen} setIsOpen={(isOpen) => setIsEnterRoomModalOpen(isOpen)}/>
 
-            <div className="flex h-screen overflow-hidden">
-                <div className="h-screen overflow-y-auto p-4 pb-36">
+            <div className="h-screen overflow-hidden">
+                <div className="h-screen flex flex-col justify-end overflow-y-auto p-4 pb-36">
                     {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
                             <div key={message.id} className="flex mb-4 cursor-pointer"
@@ -128,22 +145,29 @@ function App() {
                     }
                 </div>
 
-                <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-3/4">
+                <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-full">
                     <form className="space-y-6">
+                        <div className="flex justify-end">
+                            <button className="bg-red-500 text-white px-4 py-2 rounded-md ml-2 w-36"
+                                    type={"button"}
+                                    onClick={handleLeave}
+                            >離開房間
+                            </button>
+                        </div>
                         <div className="flex items-center">
                             <input type="text" placeholder="Type a message..."
                                    className="w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
                                    value={inputValue} onChange={(event) => setInputValue(event.target.value)}
                                 // pattern={"^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$"}
                             />
-                            <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2"
-                                    onClick={handlePaste}>Paste
+                            <button className="bg-indigo-500 w-24 text-white px-4 py-2 rounded-md ml-2"
+                                    onClick={handlePaste}>貼上
                             </button>
 
-                            <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2"
+                            <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2 w-24"
                                     type={"button"}
                                     onClick={handleSubmit}
-                            >Send
+                            >發送
                             </button>
                         </div>
                     </form>
