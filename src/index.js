@@ -28,7 +28,7 @@ window.Echo = new Echo({
         }
 
     },
-    authEndpoint: `https://${process.env.REACT_APP_API_DOMAIN}/broadcasting/auth`,
+    authEndpoint: `${process.env.REACT_APP_REVERB_SCHEME}://${process.env.REACT_APP_API_DOMAIN}/broadcasting/auth`,
     enabledTransports: ['ws', 'wss'],
 });
 
