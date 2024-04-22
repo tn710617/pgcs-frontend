@@ -3,12 +3,55 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {BrowserRouter} from "react-router-dom";
+import {RecoilRoot} from "recoil";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+
+import Echo from 'laravel-echo';
+
+import Pusher from "pusher-js";
+import {getUserHashId} from "./Messages/handlers";
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: process.env.REACT_APP_REVERB_APP_KEY,
+    wsHost: process.env.REACT_APP_REVERB_HOST,
+    wsPort: process.env.REACT_APP_REVERB_PORT,
+    wssPort: process.env.REACT_APP_REVERB_PORT,
+    forceTLS: (process.env.REACT_APP_REVERB_SCHEME ?? 'https') === 'https',
+    auth: {
+        headers: {
+            'Authorization': `Bearer ${getUserHashId()}`,
+        }
+
+    },
+    authEndpoint: "http://localhost/broadcasting/auth",
+    enabledTransports: ['ws'],
+});
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false
+        }
+    }
+})
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <React.StrictMode>
+        <RecoilRoot>
+            <QueryClientProvider client={queryClient}>
+                <BrowserRouter basename={process.env.PUBLIC_URL}>
+                    <App/>
+                    <ReactQueryDevtools initialIsOpen={false}/>
+                </BrowserRouter>
+            </QueryClientProvider>
+        </RecoilRoot>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
