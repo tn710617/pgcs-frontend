@@ -28,8 +28,8 @@ window.Echo = new Echo({
         }
 
     },
-    authEndpoint: "http://localhost/broadcasting/auth",
-    enabledTransports: ['ws'],
+    authEndpoint: `https://${process.env.REACT_APP_API_DOMAIN}/broadcasting/auth`,
+    enabledTransports: ['ws', 'wss'],
 });
 
 const queryClient = new QueryClient({
