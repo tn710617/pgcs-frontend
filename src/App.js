@@ -128,7 +128,7 @@ function App() {
             <EnterRoomModal isOpen={isEnterRoomModalOpen} setIsOpen={(isOpen) => setIsEnterRoomModalOpen(isOpen)}/>
 
             <div className="h-screen overflow-hidden">
-                <div className="h-screen flex flex-col justify-end overflow-y-auto p-4 pb-36">
+                <div className="h-screen flex flex-col justify-end overflow-y-auto p-4 pb-48">
                     {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
                             <div key={message.id} className="flex mb-4 cursor-pointer"
