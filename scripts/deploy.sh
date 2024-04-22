@@ -17,4 +17,5 @@ echo "start build..." &&
   echo "deploy success" &&
   echo "clean..." &&
   ssh linode-blog "rm -rf /var/www/html/PGCS-frontend/build.tar.gz && rm -rf /var/www/html/PGCS-frontend/build_temp" &&
+  rm -rf /Users/ray/code/side-projects/pokemon-go-sharing-coordinate-frontend/build.tar.gz &&
   echo "clean success"
