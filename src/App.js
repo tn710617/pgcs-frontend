@@ -115,10 +115,16 @@ function App() {
     }
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
+        const handleKeyDown = async (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                handleSubmit(event)
+                if (inputValue !== '') {
+                    await handleSubmit(event)
+                }
+
+                if (inputValue === '') {
+                    await handleSendCopy(event)
+                }
             }
         }
 
@@ -133,6 +139,25 @@ function App() {
         leaveRoom.mutate({}, {
             onSuccess: () => {
                 window.location.reload()
+            },
+            onError: (error) => {
+                console.error(error)
+            }
+        });
+    }
+
+    const handleSendCopy = async (event) => {
+        // send the first coordinate from clipboard
+        event.preventDefault();
+
+        const text = await navigator.clipboard.readText();
+        if (text === '') {
+            return
+        }
+
+        createMessage.mutate({message_content: text}, {
+            onSuccess: () => {
+                queryClient.invalidateQueries(indexMessage.queryKey);
             },
             onError: (error) => {
                 console.error(error)
@@ -179,14 +204,15 @@ function App() {
                                 </button>
                             </form>
                         </div>
-                        <div className={"flex"}>
+                        <div className={"flex gap-3"}>
                             <button className="bg-indigo-500 w-20 text-white px-4 py-2 rounded-md"
                                     onClick={handlePaste}>貼上
                             </button>
-                            <button className="bg-red-500 text-white px-4 py-2 rounded-md ml-2 w-20"
-                                    type={"button"}
-                                    onClick={handleLeave}
-                            >離開
+                            <button className="bg-indigo-500 w-24 text-white px-4 py-2 rounded-md"
+                                    onClick={handleSendCopy}>發送複製
+                            </button>
+                            <button className="bg-red-500 w-20 text-white px-4 py-2 rounded-md"
+                                    onClick={handleLeave}>離開
                             </button>
                         </div>
                     </div>
