@@ -85,6 +85,7 @@ function App() {
         maintainEnterRoomModal()
     }, [currentRoomId, setIsEnterRoomModalOpen, userId]);
 
+
     const handlePaste = async (event) => {
         event.preventDefault();
         const text = await navigator.clipboard.readText();
@@ -99,6 +100,9 @@ function App() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        if (inputValue === '') {
+            return
+        }
         createMessage.mutate({message_content: inputValue}, {
             onSuccess: () => {
                 setInputValue(() => '')
@@ -110,6 +114,21 @@ function App() {
         });
     }
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSubmit(event)
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [inputValue]);
+
     const handleLeave = () => {
         leaveRoom.mutate({}, {
             onSuccess: () => {
@@ -120,7 +139,6 @@ function App() {
             }
         });
     }
-
 
     return (
         <>
@@ -134,7 +152,7 @@ function App() {
                             <div key={message.id} className="flex mb-4 cursor-pointer"
                                  onClick={() => handleCoordinateClicked(message.message_content)}>
                                 <div
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-blue-500' : 'bg-pink-500'}`}>
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}>
                                 </div>
                                 <div className="flex max-w-96 bg-white rounded-lg p-3 gap-3">
                                     <p className="text-gray-700">{message.message_content}</p>
@@ -146,31 +164,32 @@ function App() {
                 </div>
 
                 <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-full">
-                    <form className="space-y-6">
-                        <div className="flex justify-end">
-                            <button className="bg-red-500 text-white px-4 py-2 rounded-md ml-2 w-36"
-                                    type={"button"}
-                                    onClick={handleLeave}
-                            >離開房間
-                            </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div>
+                            <form className="flex" onSubmit={handleSubmit}>
+                                <input type="text" placeholder="輸入座標"
+                                       className="w-72 p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
+                                       value={inputValue} onChange={(event) => setInputValue(event.target.value)}
+                                    // pattern={"^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$"}
+                                />
+
+                                <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2 w-24"
+                                        type={"submit"}
+                                >發送
+                                </button>
+                            </form>
                         </div>
-                        <div className="flex items-center">
-                            <input type="text" placeholder="Type a message..."
-                                   className="w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
-                                   value={inputValue} onChange={(event) => setInputValue(event.target.value)}
-                                pattern={"^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$"}
-                            />
-                            <button className="bg-indigo-500 w-24 text-white px-4 py-2 rounded-md ml-2"
+                        <div className={"flex"}>
+                            <button className="bg-indigo-500 w-20 text-white px-4 py-2 rounded-md"
                                     onClick={handlePaste}>貼上
                             </button>
-
-                            <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2 w-24"
+                            <button className="bg-red-500 text-white px-4 py-2 rounded-md ml-2 w-20"
                                     type={"button"}
-                                    onClick={handleSubmit}
-                            >發送
+                                    onClick={handleLeave}
+                            >離開
                             </button>
                         </div>
-                    </form>
+                    </div>
                 </footer>
             </div>
         </>
