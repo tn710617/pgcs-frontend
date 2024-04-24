@@ -120,6 +120,7 @@ function App() {
                 event.preventDefault();
                 if (inputValue !== '') {
                     await handleSubmit(event)
+                    return
                 }
 
                 if (inputValue === '') {
