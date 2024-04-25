@@ -1,5 +1,5 @@
 import './App.css';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {
     appendCoordinateToCopiedCoordinates, getUserHashId,
     isCoordinateCopied,
@@ -30,6 +30,7 @@ function App() {
     const leaveRoom = useLeaveRoom()
 
     const queryClient = useQueryClient();
+    const coordinateInputRef = useRef(null);
 
     useEffect(() => {
         if (userSelf.isSuccess && userSelf.data) {
@@ -116,7 +117,7 @@ function App() {
 
     useEffect(() => {
         const handleKeyDown = async (event) => {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && document.activeElement !== coordinateInputRef.current) {
                 event.preventDefault();
                 if (inputValue !== '') {
                     await handleSubmit(event)
@@ -193,7 +194,7 @@ function App() {
                     <div className="flex flex-wrap items-center gap-3">
                         <div>
                             <form className="flex" onSubmit={handleSubmit}>
-                                <input type="text" placeholder="輸入座標"
+                                <input type="text" placeholder="輸入座標" ref={coordinateInputRef}
                                        className="w-72 p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
                                        value={inputValue} onChange={(event) => setInputValue(event.target.value)}
                                     // pattern={"^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$"}
