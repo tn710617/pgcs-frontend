@@ -169,8 +169,11 @@ function App() {
 
     return (
         <>
+            {
+                userSelf.isSuccess &&
+                <EnterRoomModal isOpen={isEnterRoomModalOpen} setIsOpen={(isOpen) => setIsEnterRoomModalOpen(isOpen)}/>
+            }
             <SecretModal isOpen={isSecretModalOpen} setIsOpen={(isOpen) => setIsSecretModalOpen(isOpen)}/>
-            <EnterRoomModal isOpen={isEnterRoomModalOpen} setIsOpen={(isOpen) => setIsEnterRoomModalOpen(isOpen)}/>
 
             <div className="h-screen overflow-hidden">
                 <div className="h-screen flex flex-col justify-end overflow-y-auto p-4 pb-48">
