@@ -175,21 +175,20 @@ function App() {
             }
             <SecretModal isOpen={isSecretModalOpen} setIsOpen={(isOpen) => setIsSecretModalOpen(isOpen)}/>
 
-            <div className="h-screen overflow-hidden">
-                <div className="h-screen flex flex-col justify-end overflow-y-auto p-4 pb-48">
+            <div className="h-screen">
+                <div className="h-screen w-screen flex flex-col justify-end overflow-y-auto p-4 pb-48">
                     {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
-                            <div key={message.id} className="flex mb-4 cursor-pointer"
+                            <div key={message.id} className="flex mb-4"
                                  onClick={() => handleCoordinateClicked(message.message_content)}>
                                 <div
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}>
+                                    className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}>
                                 </div>
-                                <div className="flex max-w-96 bg-white rounded-lg p-3 gap-3">
-                                    <p className="text-gray-700">{message.message_content}</p>
+                                <div className="bg-white w-full rounded-lg cursor-pointer pr-12">
+                                    <p className="text-gray-700 break-words">{message.message_content}</p>
                                 </div>
                             </div>
                         ))
-
                     }
                 </div>
 
