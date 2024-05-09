@@ -11,7 +11,7 @@ import {useGetUserSelf} from "./APIs/auth";
 import {isUserSet} from "./Helpers/authHanders";
 import enterSecretModalAtom from "./States/EnterSecretModalAtom";
 import enterMessageRoomModalAtom from "./States/EnterMessageRoomModalAtom";
-import {useCreateMessage, useIndexMessage} from "./APIs/message";
+import {useCreateMessage, useDeleteMessage, useIndexMessage} from "./APIs/message";
 import {useQueryClient} from "@tanstack/react-query";
 import {useLeaveRoom} from "./APIs/messageRoom";
 import toast, {Toaster} from "react-hot-toast";
@@ -27,6 +27,7 @@ function App() {
 
     const userSelf = useGetUserSelf({enabled: isUserSet()})
     const createMessage = useCreateMessage();
+    const deleteMessage = useDeleteMessage();
     const indexMessage = useIndexMessage({enabled: (currentRoomId !== null) && (currentRoomId !== undefined)});
     const leaveRoom = useLeaveRoom()
 
@@ -60,6 +61,9 @@ function App() {
             if (currentRoomId !== null && currentRoomId !== undefined) {
                 window.Echo.private(`messageRooms.${currentRoomId}`)
                     .listen('MessageCreated', (e) => {
+                        queryClient.invalidateQueries(indexMessage.queryKey);
+                    })
+                    .listen('MessageDeleted', (e) => {
                         queryClient.invalidateQueries(indexMessage.queryKey);
                     });
             }
@@ -99,6 +103,20 @@ function App() {
         navigator.clipboard.writeText(coordinate)
         setCoordinatesCopiedCount(prev => prev + 1)
         toast.success('已複製');
+    }
+
+    const handleDeleteCoordinate = (event) => {
+        const messageId = event.target.id;
+
+        deleteMessage.mutate({messageId: messageId}, {
+            onSuccess: () => {
+                queryClient.invalidateQueries(indexMessage.queryKey);
+                toast('已刪除', {icon: '🗑️'})
+            },
+            onError: (error) => {
+                console.error(error)
+            }
+        });
     }
 
     const handleSubmit = (event) => {
@@ -182,12 +200,23 @@ function App() {
                 <div className="h-full flex flex-col justify-end overflow-y-auto p-4 pb-48">
                     {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
-                            <div key={message.id} className="flex mb-4"
-                                 onClick={() => handleCoordinateClicked(message.message_content)}>
+                            <div key={message.id} className="flex mb-4">
                                 <div
-                                    className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}>
+                                    className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}
+                                >
                                 </div>
-                                <div className="bg-white w-auto max-w-full rounded-lg cursor-pointer">
+                                {
+                                    message.user_id === userId &&
+                                    <div
+                                        id={message.id}
+                                        className={`min-w-9 min-h-9 w-9 h-9 rounded-lg mr-2 bg-red-500 cursor-pointer text-white text-xs flex justify-center items-center font-bold`}
+                                        onClick={handleDeleteCoordinate}
+                                    >
+                                        DEL
+                                    </div>
+                                }
+                                <div className="bg-white w-auto max-w-full rounded-lg cursor-pointer"
+                                     onClick={() => handleCoordinateClicked(message.message_content)}>
                                     <p className="text-gray-700 w-auto break-words">{message.message_content}</p>
                                 </div>
                             </div>

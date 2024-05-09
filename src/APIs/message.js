@@ -23,15 +23,30 @@ export function useIndexMessage(options = {}) {
     })
 }
 
+export function useDeleteMessage(options = {}) {
+    const axios = useAxios()
+    return useMutation({
+        mutationFn: async (data = {}) => {
+            const userId = getUserFromLocalStorage()
+            const res = await axios.delete(`messages/${data.messageId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${userId}`,
+                    "X-Socket-Id": window.Echo.socketId()
+                }
+            })
+            return res.data.data
+        }, ...options
+    })
+}
 
 export function useCreateMessage(options = {}) {
     const axios = useAxios()
     return useMutation({
         mutationFn: async (data = {}) => {
-            data.user_id = getUserFromLocalStorage()
+            const userId = getUserFromLocalStorage()
             const res = await axios.post(`messages`, data, {
                 headers: {
-                    Authorization: `Bearer ${data.user_id}`,
+                    Authorization: `Bearer ${userId}`,
                     "X-Socket-Id": window.Echo.socketId()
                 }
             })
