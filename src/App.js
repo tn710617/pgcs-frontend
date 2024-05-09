@@ -14,6 +14,7 @@ import enterMessageRoomModalAtom from "./States/EnterMessageRoomModalAtom";
 import {useCreateMessage, useIndexMessage} from "./APIs/message";
 import {useQueryClient} from "@tanstack/react-query";
 import {useLeaveRoom} from "./APIs/messageRoom";
+import toast, {Toaster} from "react-hot-toast";
 
 function App() {
     const [inputValue, setInputValue] = useState('');
@@ -97,6 +98,7 @@ function App() {
         appendCoordinateToCopiedCoordinates(coordinate);
         navigator.clipboard.writeText(coordinate)
         setCoordinatesCopiedCount(prev => prev + 1)
+        toast.success('已複製');
     }
 
     const handleSubmit = (event) => {
@@ -169,6 +171,7 @@ function App() {
 
     return (
         <>
+            <Toaster/>
             {
                 userSelf.isSuccess &&
                 <EnterRoomModal isOpen={isEnterRoomModalOpen} setIsOpen={(isOpen) => setIsEnterRoomModalOpen(isOpen)}/>
@@ -184,8 +187,8 @@ function App() {
                                 <div
                                     className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}>
                                 </div>
-                                <div className="bg-white w-full rounded-lg cursor-pointer">
-                                    <p className="text-gray-700 break-words">{message.message_content}</p>
+                                <div className="bg-white w-auto max-w-full rounded-lg cursor-pointer">
+                                    <p className="text-gray-700 w-auto break-words">{message.message_content}</p>
                                 </div>
                             </div>
                         ))

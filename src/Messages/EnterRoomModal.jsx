@@ -3,8 +3,6 @@ import {useEnterRoom} from "../APIs/messageRoom";
 import {useGetUserSelf} from "../APIs/auth";
 import {isUserSet} from "../Helpers/authHanders";
 import {useQueryClient} from "@tanstack/react-query";
-import {useRecoilState} from "recoil";
-import enterMessageRoomModalAtom from "../States/EnterMessageRoomModalAtom";
 
 function EnterRoomModal({isOpen}) {
     const [roomName, setRoomName] = useState('');
