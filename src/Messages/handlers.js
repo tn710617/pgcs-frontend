@@ -2,10 +2,6 @@ export function getCopiedCoordinatesKey() {
     return 'PGCS_COPIED_COORDINATES';
 }
 
-export function getTestingCoordinatesKey() {
-    return 'PGCS_TESTING_COORDINATES';
-}
-
 export function appendCoordinateToCopiedCoordinates(coordinate) {
     const coordinateKey = getCopiedCoordinatesKey();
 
@@ -20,7 +16,7 @@ export function appendCoordinateToCopiedCoordinates(coordinate) {
     coordinates.push(coordinate);
 
     // if coordinates is more than 5, remove the first one
-    if (coordinates.length > 5) {
+    if (coordinates.length > 15) {
         coordinates.shift();
     }
 
@@ -32,31 +28,7 @@ export function isCoordinateCopied(coordinate) {
     return coordinates.includes(coordinate);
 }
 
-export function appendClipboardToTestingCoordinates() {
-    if (navigator.clipboard) {
-        try {
-            navigator.clipboard.readText().then((text) => {
-                const coordinates = JSON.parse(localStorage.getItem(getTestingCoordinatesKey()) || '[]');
-                coordinates.push(text);
-
-                localStorage.setItem(getTestingCoordinatesKey(), JSON.stringify(coordinates));
-            });
-        } catch (error) {
-            console.error('Failed to write clipboard contents:', error);
-        }
-    } else {
-        alert('Clipboard API not available');
-    }
-}
-
-export function getTestingCoordinates() {
-    return JSON.parse(localStorage.getItem(getTestingCoordinatesKey()) || '[]');
-}
-
 export function getUserHashId() {
     return localStorage.getItem('PGCS_USER_HASH_ID');
 }
 
-export function doesUserHashIdNotExist() {
-    return !getUserHashId();
-}
