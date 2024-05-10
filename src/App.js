@@ -196,8 +196,8 @@ function App() {
             }
             <SecretModal isOpen={isSecretModalOpen} setIsOpen={(isOpen) => setIsSecretModalOpen(isOpen)}/>
 
-            <div className="h-screen pr-8">
-                <div className="h-full flex flex-col justify-end overflow-y-auto p-4 pb-48">
+            <div className={"flex flex-col justify-end h-screen"}>
+                <div className="justify-end overflow-y-auto p-4">
                     {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
                             <div key={message.id} className="flex mb-4">
@@ -223,25 +223,24 @@ function App() {
                         ))
                     }
                 </div>
-
-                <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-full">
+                <footer className="bg-white border-t border-gray-300 p-4 bottom-0 w-full">
                     <div className="flex flex-wrap items-center gap-3">
                         <div>
                             <form className="flex" onSubmit={handleSubmit}>
                                 <input type="text" placeholder="輸入座標" ref={coordinateInputRef}
-                                       className="w-72 p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
+                                       className="w-72 p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500 hidden sm:block"
                                        value={inputValue} onChange={(event) => setInputValue(event.target.value)}
                                     // pattern={"^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$"}
                                 />
 
-                                <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2 w-24"
+                                <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2 w-24 hidden sm:block"
                                         type={"submit"}
                                 >發送
                                 </button>
                             </form>
                         </div>
                         <div className={"flex gap-3"}>
-                            <button className="bg-indigo-500 w-20 text-white px-4 py-2 rounded-md"
+                            <button className="bg-indigo-500 w-20 text-white px-4 py-2 rounded-md hidden sm:block"
                                     onClick={handlePaste}>貼上
                             </button>
                             <button className="bg-indigo-500 w-24 text-white px-4 py-2 rounded-md"
@@ -253,6 +252,7 @@ function App() {
                         </div>
                     </div>
                 </footer>
+
             </div>
         </>
     );
