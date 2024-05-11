@@ -16,7 +16,7 @@ export function appendCoordinateToCopiedCoordinates(coordinate) {
     coordinates.push(coordinate);
 
     // if coordinates is more than 5, remove the first one
-    if (coordinates.length > 7) {
+    while (coordinates.length > 50) {
         coordinates.shift();
     }
 

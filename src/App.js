@@ -98,9 +98,9 @@ function App() {
         await setInputValue(text);
     };
 
-    const handleCoordinateClicked = (coordinate) => {
-        appendCoordinateToCopiedCoordinates(coordinate);
-        navigator.clipboard.writeText(coordinate)
+    const handleCoordinateClicked = (message) => {
+        appendCoordinateToCopiedCoordinates(message.id);
+        navigator.clipboard.writeText(message.message_content)
         setCoordinatesCopiedCount(prev => prev + 1)
         toast.success('已複製');
     }
@@ -202,7 +202,7 @@ function App() {
                         indexMessage.isSuccess && indexMessage.data.map((message, index) => (
                             <div key={message.id} className="flex mb-4">
                                 <div
-                                    className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.message_content) ? 'bg-gray-400' : 'bg-black'}`}
+                                    className={`min-w-9 min-h-9 w-9 h-9 rounded-full items-center mr-2 ${isCoordinateCopied(message.id) ? 'bg-gray-400' : 'bg-black'}`}
                                 >
                                 </div>
                                 {
@@ -216,7 +216,7 @@ function App() {
                                     </div>
                                 }
                                 <div className="bg-white w-auto max-w-full rounded-lg cursor-pointer"
-                                     onClick={() => handleCoordinateClicked(message.message_content)}>
+                                     onClick={() => handleCoordinateClicked(message)}>
                                     <p className="text-gray-700 w-auto break-words">{message.message_content}</p>
                                 </div>
                             </div>
