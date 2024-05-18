@@ -2,8 +2,8 @@ self.addEventListener('message', function (event) {
     const title = '收到新座標'
     const notification = event.data
     const options = {
-        body: notification
-        // icon: notification.icon || '/logo192.png',
+        body: notification,
+        icon: './logo.png',
     };
 
     // self.registration.showNotification(title, options);
