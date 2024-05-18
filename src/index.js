@@ -12,6 +12,7 @@ import Echo from 'laravel-echo';
 
 import Pusher from "pusher-js";
 import {getUserHashId} from "./Messages/handlers";
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 window.Pusher = Pusher;
 
@@ -53,6 +54,8 @@ root.render(
         </RecoilRoot>
     </React.StrictMode>
 );
+
+serviceWorkerRegistration.register();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

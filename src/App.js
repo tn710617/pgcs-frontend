@@ -57,11 +57,37 @@ function App() {
     }, [userSelf]);
 
     useEffect(() => {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(function (registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }).catch(function (error) {
+                console.error('Service Worker registration failed:', error);
+            });
+        }
+
+        const askPermission = async () => {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+            } else {
+                console.log('Unable to get permission to notify.');
+            }
+        };
+
+        askPermission();
+
         const listenToChannel = async () => {
             if (currentRoomId !== null && currentRoomId !== undefined) {
                 window.Echo.private(`messageRooms.${currentRoomId}`)
                     .listen('MessageCreated', (e) => {
                         queryClient.invalidateQueries(indexMessage.queryKey);
+                        console.log(e)
+
+                        navigator.serviceWorker.ready.then(function (registration) {
+                            console.log('Service Worker ready')
+                            registration.active.postMessage('123');
+                        });
                     })
                     .listen('MessageDeleted', (e) => {
                         queryClient.invalidateQueries(indexMessage.queryKey);
@@ -128,6 +154,7 @@ function App() {
             onSuccess: () => {
                 setInputValue(() => '')
                 queryClient.invalidateQueries(indexMessage.queryKey);
+
             },
             onError: (error) => {
                 console.error(error)
