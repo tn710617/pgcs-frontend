@@ -6,8 +6,6 @@ self.addEventListener('message', function (event) {
         icon: './logo.png',
     };
 
-    // self.registration.showNotification(title, options);
-
     event.waitUntil(
         self.registration.showNotification(title, options)
     );
@@ -15,7 +13,6 @@ self.addEventListener('message', function (event) {
 
 self.addEventListener('notificationclick', function (event) {
     const notification = event.notification;
-    console.log(event)
     const body = notification.body;
     event.notification.close();
 
@@ -39,22 +36,5 @@ self.addEventListener('notificationclick', function (event) {
             }
         })
 
-        // clients.matchAll({type: 'window', includeUncontrolled: true}).then(clientList => {
-        //     if (clientList.length > 0) {
-        //         clientList[0].postMessage({
-        //             action: 'copyToClipboard',
-        //             text: body
-        //         });
-        //     }
-        // })
-
-        // (async () => {
-        //     try {
-        //         await navigator.clipboard.writeText(body);
-        //         console.log('Notification body copied to clipboard:', body);
-        //     } catch (err) {
-        //         console.error('Failed to copy text to clipboard:', err);
-        //     }
-        // })()
     );
 });

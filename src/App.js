@@ -41,62 +41,49 @@ function App() {
     }, [userSelf]);
 
     useEffect(() => {
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(function (registration) {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                }).catch(function (error) {
-                console.error('Service Worker registration failed:', error);
-            });
-
-            const askPermission = async () => {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    console.log('Notification permission granted.');
-                } else {
-                    console.log('Unable to get permission to notify.');
-                }
-            };
-
-            askPermission();
-
-            navigator.serviceWorker.addEventListener('message', function(event) {
-                if (event.data && event.data.action === 'copyToClipboard') {
-                    // Wait for the document to become visible
-                    const copyText = () => {
-                        if (document.visibilityState === 'visible') {
-                            navigator.clipboard.writeText(event.data.text)
-                                .then(() => {
-                                    console.log('Notification text copied to clipboard:', event.data.text);
-                                })
-                                .catch((error) => {
-                                    console.error('Failed to copy text to clipboard:', error);
-                                });
-                            document.removeEventListener('visibilitychange', copyText);
-                        }
-                    };
-
+        const handlePopUpNotificationClick = async (event) => {
+            if (event.data && event.data.action === 'copyToClipboard') {
+                const copyText = () => {
                     if (document.visibilityState === 'visible') {
-                        copyText();
-                    } else {
-                        document.addEventListener('visibilitychange', copyText);
+                        navigator.clipboard.writeText(event.data.text)
+                            .then(() => {
+                                console.log('Notification text copied to clipboard:', event.data.text);
+                            })
+                            .catch((error) => {
+                                console.error('Failed to copy text to clipboard:', error);
+                            });
+                        document.removeEventListener('visibilitychange', copyText);
                     }
-                }
-            });
+                };
 
-            // navigator.serviceWorker.addEventListener('message', function (event) {
-            //     if (event.data && event.data.action === 'copyToClipboard') {
-            //         navigator.clipboard.writeText(event.data.text)
-            //             .then(() => {
-            //                 console.log('Notification text copied to clipboard:', event.data.text);
-            //             })
-            //             .catch((error) => {
-            //                 console.error('Failed to copy text to clipboard:', error);
-            //             });
-            //     }
-            // });
+                if (document.visibilityState === 'visible') {
+                    copyText();
+                } else {
+                    document.addEventListener('visibilitychange', copyText);
+                }
+            }
         }
 
+        const askPermission = async () => {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+            } else {
+                console.log('Unable to get permission to notify.');
+            }
+        };
+
+        askPermission();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', handlePopUpNotificationClick);
+        }
+
+        return () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.removeEventListener('message', handlePopUpNotificationClick);
+            }
+        }
     }, []);
 
     useEffect(() => {
